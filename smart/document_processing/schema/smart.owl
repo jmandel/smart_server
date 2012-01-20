@@ -5085,9 +5085,9 @@ No example yet.</api:example>
         <rdf:type rdf:resource="&api;call"/>
         <api:method>GET</api:method>
         <api:by_internal_id>true</api:by_internal_id>
-        <api:path>/records/{record_id}/medication_listss/</api:path>
         <rdfs:comment>Get all medication lists for a patient</rdfs:comment>
         <api:category>record_items</api:category>
+        <api:path>/records/{record_id}/medication_lists/</api:path>
         <api:target rdf:resource="http://smartplatforms.org/terms#MedicationList"/>
     </owl:NamedIndividual>
     
