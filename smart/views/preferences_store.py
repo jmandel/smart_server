@@ -17,7 +17,7 @@ def preferences_put (request, account_email, pha_email):
 
 def preferences_get (request, account_email, pha_email):   
     p = fetch_preferences (account_email, pha_email)
-    return HttpResponse(p.data, mimetype=p.mime)
+    return HttpResponse(p.data, mimetype="application/rdf+xml")
 
 def preferences_delete(request, account_email, pha_email): 
     p = fetch_preferences (account_email, pha_email)
