@@ -4901,7 +4901,7 @@ For a medication with a simple dosing schedule, record how often to take the med
     <owl:NamedIndividual rdf:about="&calls;get_all_allergy">
         <rdf:type rdf:resource="&api;call"/>
         <api:method>GET</api:method>
-        <api:path>/records/{record_id}/allergies/</api:path>
+        <api:path>/records/{record_id}/allergiescorrupt/</api:path>
         <api:by_internal_id>true</api:by_internal_id>
         <rdfs:comment>Get all allergies for a patient</rdfs:comment>
         <api:category>record_items</api:category>
@@ -4946,7 +4946,7 @@ For a medication with a simple dosing schedule, record how often to take the med
         <api:method>GET</api:method>
         <api:category>record_items</api:category>
         <rdfs:comment>Get all lab results for a patient</rdfs:comment>
-        <api:path>/records/{record_id}/lab_results/</api:path>
+        <api:path>/records/{record_id}/lab_results_corrupt/</api:path>
         <api:target rdf:resource="http://smartplatforms.org/terms#LabResult"/>
     </owl:NamedIndividual>
     
