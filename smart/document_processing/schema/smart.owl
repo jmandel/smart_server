@@ -2869,6 +2869,17 @@ A single fulfillment event (that is, the medication was dispensed to the patient
         </rdfs:subClassOf>
         <rdfs:subClassOf>
             <owl:Restriction>
+                <owl:onProperty rdf:resource="http://smartplatforms.org/terms#medListSource"/>
+                <owl:allValuesFrom>
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="http://smartplatforms.org/terms#code"/>
+                        <owl:allValuesFrom rdf:resource="&spcode;MedListSource"/>
+                    </owl:Restriction>
+                </owl:allValuesFrom>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <rdfs:subClassOf>
+            <owl:Restriction>
                 <owl:onProperty rdf:resource="http://smartplatforms.org/terms#responsibleParty"/>
                 <owl:onClass rdf:resource="http://smartplatforms.org/terms#Person"/>
                 <owl:maxQualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:maxQualifiedCardinality>
@@ -2894,21 +2905,61 @@ A single fulfillment event (that is, the medication was dispensed to the patient
             </owl:Restriction>
         </rdfs:subClassOf>
         <api:example rdf:datatype="&rdf;XMLLiteral">&lt;?xml version=&quot;1.0&quot; encoding=&quot;utf-8&quot;?&gt;
-No example yet.</api:example>
+&lt;rdf:RDF
+  xmlns:rdf=&quot;http://www.w3.org/1999/02/22-rdf-syntax-ns#&quot;
+  xmlns:sp=&quot;http://smartplatforms.org/terms#&quot;
+  xmlns:dcterms=&quot;http://purl.org/dc/terms/&quot;
+  xmlns:v=&quot;http://www.w3.org/2006/vcard/ns#&quot;
+  xmlns:foaf=&quot;http://xmlns.com/foaf/0.1/&quot;
+  xmlns:spcode=&quot;http://smartplatforms.org/terms/codes/&quot;&gt;
+
+&lt;sp:MedicationList&gt;
+    &lt;dcterms:date&gt;2012-01-26&lt;/dcterms:date&gt; 
+    &lt;sp:medListSource&gt;
+      &lt;sp:CodedValue&gt;
+        &lt;rdf:type rdf:resource=&quot;http://smartplatforms.org/terms#CodedValue&quot;/&gt;
+        &lt;dcterms:title&gt;Derived from patient report&lt;/dcterms:title&gt;
+        &lt;sp:code rdf:resource=&quot;http://smartplatforms.org/terms/codes/MedListSource#patientReport&quot;/&gt;
+      &lt;/sp:CodedValue&gt;
+    &lt;/sp:medListSource&gt;
+    &lt;sp:medication&gt;
+       &lt;sp:Medication rdf:nodeID=&quot;med1&quot;&gt;
+          &lt;sp:drugName&gt;
+          &lt;sp:CodedValue&gt;
+          &lt;dcterms:title&gt;AMITRIPTYLINE HCL 50 MG TAB&lt;/dcterms:title&gt;
+          &lt;sp:code&gt;
+            &lt;spcode:RxNorm_Semantic rdf:about=&quot;http://rxnav.nlm.nih.gov/REST/rxcui/856845&quot;&gt;
+              &lt;rdf:type rdf:resource=&quot;http://smartplatforms.org/terms#Code&quot; /&gt; 
+              &lt;sp:system&gt;http://rxnav.nlm.nih.gov/REST/rxcui/&lt;/sp:system&gt;
+              &lt;dcterms:identifier&gt;856845&lt;/dcterms:identifier&gt;
+              &lt;dcterms:title&gt;AMITRIPTYLINE HCL 50 MG TAB&lt;/dcterms:title&gt;
+            &lt;/spcode:RxNorm_Semantic&gt;    
+          &lt;/sp:code&gt;
+          &lt;/sp:CodedValue&gt;
+          &lt;/sp:drugName&gt;
+          &lt;sp:startDate&gt;2007-03-14&lt;/sp:startDate&gt;
+          &lt;sp:endDate&gt;2007-08-14&lt;/sp:endDate&gt;
+          &lt;sp:instructions&gt;Take two tablets twice daily as needed for pain&lt;/sp:instructions&gt;
+          &lt;sp:quantity&gt;
+          &lt;sp:ValueAndUnit&gt;
+            &lt;sp:value&gt;2&lt;/sp:value&gt;
+            &lt;sp:unit&gt;{tablet}&lt;/sp:unit&gt;
+          &lt;/sp:ValueAndUnit&gt;
+          &lt;/sp:quantity&gt;
+          &lt;sp:frequency&gt;
+          &lt;sp:ValueAndUnit&gt;
+            &lt;sp:value&gt;2&lt;/sp:value&gt;
+            &lt;sp:unit&gt;/d&lt;/sp:unit&gt;
+          &lt;/sp:ValueAndUnit&gt;
+          &lt;/sp:frequency&gt;
+       &lt;/sp:Medication&gt;
+    &lt;/sp:medication&gt;
+&lt;/sp:MedicationList&gt;
+
+&lt;/rdf:RDF&gt;</api:example>
         <api:description>A MedicationList groups together a set of medications.  </api:description>
         <api:base_path>/records/{record_id}/medication_lists/{medication_list_id}</api:base_path>
     </owl:Class>
-    <owl:Axiom>
-        <rdfs:comment>Represents the source of this medication list, chosen from a fixed vocabulary.</rdfs:comment>
-        <owl:annotatedSource rdf:resource="http://smartplatforms.org/terms#MedicationList"/>
-        <owl:annotatedProperty rdf:resource="&rdfs;subClassOf"/>
-        <owl:annotatedTarget>
-            <owl:Restriction>
-                <owl:onProperty rdf:resource="http://smartplatforms.org/terms#medListSource"/>
-                <owl:allValuesFrom rdf:resource="http://smartplatforms.org/terms#CodedValue"/>
-            </owl:Restriction>
-        </owl:annotatedTarget>
-    </owl:Axiom>
     <owl:Axiom>
         <rdfs:comment>Date on which the MedList was compiled.</rdfs:comment>
         <owl:annotatedSource rdf:resource="http://smartplatforms.org/terms#MedicationList"/>
@@ -2921,7 +2972,18 @@ No example yet.</api:example>
         </owl:annotatedTarget>
     </owl:Axiom>
     <owl:Axiom>
-        <rdfs:comment>Link to the sp:Person responsible for the information in this list.  responsibleParty could be a clinician in the case of a list derived from a clinical note; or a patient in the case of a list derived by self-report.</rdfs:comment>
+        <rdfs:comment>Represents the source of this medication list, chosen from a fixed vocabulary.</rdfs:comment>
+        <owl:annotatedSource rdf:resource="http://smartplatforms.org/terms#MedicationList"/>
+        <owl:annotatedProperty rdf:resource="&rdfs;subClassOf"/>
+        <owl:annotatedTarget>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="http://smartplatforms.org/terms#medListSource"/>
+                <owl:allValuesFrom rdf:resource="http://smartplatforms.org/terms#CodedValue"/>
+            </owl:Restriction>
+        </owl:annotatedTarget>
+    </owl:Axiom>
+    <owl:Axiom>
+        <rdfs:comment>Person responsible for the information in this list.  responsibleParty could be a clinician in the case of a list derived from a clinical note; or a patient in the case of a list derived by self-report.</rdfs:comment>
         <owl:annotatedSource rdf:resource="http://smartplatforms.org/terms#MedicationList"/>
         <owl:annotatedProperty rdf:resource="&rdfs;subClassOf"/>
         <owl:annotatedTarget>
