@@ -1,34 +1,38 @@
 from smart.models.rdf_store import *
 from smart.models.records import *
 from smart.lib.utils import *
-
+from smart.client.common.util import URIRef
+from string import Template
 import re
 
 def record_get_object(request, record_id, obj,  **kwargs):
     c = RecordStoreConnector(Record.objects.get(id=record_id))
-    id = smart_path(request.path)                
-    if ('external_id' in kwargs):
-        id = obj.internal_id(c, kwargs['external_id'])
-        assert (id != None), "No %s was found with external_id %s"%(obj.type, kwargs['external_id'])
-    
-    return rdf_get(c, obj.query_one("<%s>"%id.encode()))
+    item_id = URIRef(smart_path(request.path))
+    return rdf_get(c, obj.query(subjects=[item_id]))
 
 def record_delete_object(request,  record_id, obj, **kwargs):
     c = RecordStoreConnector(Record.objects.get(id=record_id))
     id = smart_path(request.path)                
-    if ('external_id' in kwargs):            
-        id = obj.internal_id(c, kwargs['external_id'])
-        assert (id != None), "No %s was found with external_id %s"%(obj.type, kwargs['external_id'])
-    return rdf_delete(c, obj.query_one("<%s>"%id.encode()))
+    return rdf_delete(c, obj.query(subjects=["<%s>"%id.encode()]))
+
+def limit_subjects(c, obj, **kwargs):
+    q = """select ?s from $context where {
+                ?s a """+obj.node.n3()+""".
+    } order by ?s"""
+    results = c.select(q)
+    ret = [r["s"] for r in results]
+    print len(ret), " subjects to filter on" 
+    return ret
 
 def record_get_all_objects(request, record_id, obj, **kwargs):
     c = RecordStoreConnector(Record.objects.get(id=record_id))
-    return rdf_get(c, obj.query_all())
+    slist = limit_subjects(c, obj, **kwargs)
+    return rdf_get(c, obj.query(subjects=slist))
 
 def record_delete_all_objects(request, record_id, obj, **kwargs):
     
     c = RecordStoreConnector(Record.objects.get(id=record_id))
-    return rdf_delete(c, obj.query_all())
+    return rdf_delete(c, obj.query())
 
 def record_post_objects(request, record_id, obj,  **kwargs):
     c = RecordStoreConnector(Record.objects.get(id=record_id))

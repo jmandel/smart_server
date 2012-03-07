@@ -35,34 +35,17 @@ class Record(Object):
   @classmethod
   def search_records(cls, query):
     c = DemographicConnector()
-    res = c.sparql(query)
-    m = parse_rdf(res)
+    ids  = parse_rdf(c.sparql(query))
 
-    # for each person, look up their demographics object.
     from smart.models.record_object import RecordObject
-    people = m.triples((None, rdf['type'], sp.Demographics))
-    pobj = RecordObject[sp.Demographics] 
+    demographics = RecordObject[sp.Demographics]
+    subjects = [p[0] for p in ids.triples((None, rdf['type'], sp.Demographics))]
+    print subjects
+    dquery = demographics.query(subjects=subjects, restricted_context=False)
+    print dquery
 
-    obtained = set()
-    return_graph = bound_graph()
-    for person in people:
-      p = person[0] # subject
-
-      # Connect to RDF Store
-      pid = re.search("\/records\/(.*?)\/demographics", str(p)).group(1)
-      if pid in obtained: continue
-
-      print "matched ", p," to ", pid
-      obtained.add(pid)
-      c = RecordStoreConnector(Record.objects.get(id=pid))
-
-      # Pull out demographics
-      p_uri = p.n3() # subject URI
-      p_subgraph = parse_rdf(c.sparql(pobj.query_one(p_uri)))
-      
-      # Append to search result graph
-      return_graph += p_subgraph
-    return serialize_rdf(return_graph)
+    ret =  c.sparql(dquery)
+    return ret
 
   @classmethod
   def rdf_to_objects(cls, res):

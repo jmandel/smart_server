@@ -14,6 +14,8 @@ from smart.models import PHA
 from django.conf import settings
 from string import Template
 import urllib, uuid
+import json
+import time
 
 class PHA_RDFStore(Object): 
   Meta = BaseMeta()
@@ -37,12 +39,31 @@ class SesameConnector(object):
     def request(self, url, method, headers, data=None):
         return utils.url_request(url, method, headers, data)
         
+
+    def select(self, q):
+        r = self.sparql(q)
+        jr = json.loads(r)
+        for b in jr["results"]["bindings"]:
+            for k,v in b.iteritems():
+                if v["type"]=="uri":
+                    b[k] = URIRef(v["value"])
+                elif v["type"]=="literal":
+                    b[k] = Literal(v["value"])
+                elif v["type"]=="blank":
+                    b[k] = BNode(v["value"])
+                else:
+                    raise "Unknown binding type for " + v
+        return jr["results"]["bindings"]
+
     def sparql(self, q):
         u = self.endpoint
-        #print "Querying, ", q
+        st = time.time()
+        print "Querying, ", len(q) 
+        
         data = urllib.urlencode({"query" : q})
         res = self.request(u, "POST", {"Content-type": "application/x-www-form-urlencoded", 
-                                        "Accept" : "application/rdf+xml,  application/sparql-results+xml"}, data)
+                                        "Accept" : "application/rdf+xml,  application/sparql-results+json"}, data)
+        print "results in ", (time.time() - st)
         return res
             
     def serialize_node(self, node):
@@ -126,19 +147,10 @@ class DemographicConnector(SesameConnector):
 class RecordStoreConnector(ContextSesameConnector):
     def __init__(self, record):
         super(RecordStoreConnector, self).__init__(settings.RECORD_SPARQL_ENDPOINT, 
-                                                   "http://smartplatforms.org/records/%s"%record.id)
+                                                   settings.SITE_URL_PREFIX + 
+                                                        '/records/' +
+                                                        record.id)
 
-class TemporaryStoreConnector(ContextSesameConnector):
-    def __init__(self):
-        self.temp_id =str(uuid.uuid4()) 
-        super(TemporaryStoreConnector, self).__init__(settings.TEMP_SPARQL_ENDPOINT, 
-                                                   "http://smartplatforms.org/records/%s"%self.temp_id)
-    def __enter__(self):
-        return self
-    
-    def __exit__(self, type, value, traceback):
-        self.destroy_triples()
-    
 class PHAConnector(ContextSesameConnector):
     def __init__(self, request):
         pha = request.principal
